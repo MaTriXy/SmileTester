@@ -14,6 +14,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     // Main view for showing camera content.
     @IBOutlet weak var previewView: UIView?
     @IBOutlet weak var infoLabel: UILabel!
+    @IBOutlet weak var blurView: UIVisualEffectView!
+    @IBOutlet weak var buttonBlurView: UIVisualEffectView!
     
     // AVCapture variables to hold sequence data
     var session: AVCaptureSession?
@@ -42,12 +44,22 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        blurView.layer.cornerRadius = 10
+        blurView.clipsToBounds = true
+        buttonBlurView.layer.cornerRadius = 10
+        buttonBlurView.clipsToBounds = true
         
         self.session = self.setupAVCaptureSession()
         
         self.prepareVisionRequest()
         
         self.session?.startRunning()
+    }
+    
+    @IBAction func resetFacePositionButton(_ sender: UIButton) {
+        detectionOverlayLayer?.removeFromSuperlayer()
+        infoLabel.text = "Find Face"
+        self.prepareVisionRequest()
     }
     
     // Ensure that the interface stays locked in Portrait.
@@ -231,7 +243,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     /// - Tag: WriteCompletionHandler
     fileprivate func prepareVisionRequest() {
         
-        //self.trackingRequests = []
+        self.trackingRequests = []
         var requests = [VNTrackObjectRequest]()
         
         let faceDetectionRequest = VNDetectFaceRectanglesRequest(completionHandler: { (request, error) in
