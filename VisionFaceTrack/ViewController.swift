@@ -573,7 +573,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                         //let value = formatter.string(from: NSNumber(value: (smileOutput.yProbability[smileOutput.y] ?? 0) * 100))
                         // let percent = "(\(value ?? "0")%)"
                         
-                        self.infoLabel.text = "CNN: \(cnnSmiles) 😃 \(results.count - netSmiles) 😐                                     NET:\(netSmiles) 😃 \(results.count - netSmiles) 😐"
+                        self.infoLabel.text = "CNN: \(cnnSmiles) 😃 \(results.count - cnnSmiles) 😐                                     NET:\(netSmiles) 😃 \(results.count - netSmiles) 😐"
                     }
                     
                 }
