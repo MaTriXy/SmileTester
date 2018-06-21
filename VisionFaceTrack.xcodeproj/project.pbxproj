@@ -14,6 +14,7 @@
 		28C69F50204F6ACA00949F30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 28C69F4F204F6ACA00949F30 /* Assets.xcassets */; };
 		28C69F53204F6ACA00949F30 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 28C69F51204F6ACA00949F30 /* LaunchScreen.storyboard */; };
 		43A2766A20DB442D00738E2B /* SmileNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 43A2766920DB442D00738E2B /* SmileNet.mlmodel */; };
+		63125A0120DC540A00924E6A /* SmileCNN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 63125A0020DC540A00924E6A /* SmileCNN.mlmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		28C69F52204F6ACA00949F30 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		28C69F54204F6ACA00949F30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		43A2766920DB442D00738E2B /* SmileNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SmileNet.mlmodel; sourceTree = "<group>"; };
+		63125A0020DC540A00924E6A /* SmileCNN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SmileCNN.mlmodel; sourceTree = "<group>"; };
 		B69628C0B695E23000000001 /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
 		B6A8EF10B6A8F08000000001 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,6 +70,7 @@
 				28C69F4C204F6ACA00949F30 /* Main.storyboard */,
 				28C69F4F204F6ACA00949F30 /* Assets.xcassets */,
 				43A2766920DB442D00738E2B /* SmileNet.mlmodel */,
+				63125A0020DC540A00924E6A /* SmileCNN.mlmodel */,
 				28C69F51204F6ACA00949F30 /* LaunchScreen.storyboard */,
 				28C69F54204F6ACA00949F30 /* Info.plist */,
 			);
@@ -165,6 +168,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				43A2766A20DB442D00738E2B /* SmileNet.mlmodel in Sources */,
+				63125A0120DC540A00924E6A /* SmileCNN.mlmodel in Sources */,
 				28C69F4B204F6ACA00949F30 /* ViewController.swift in Sources */,
 				28C69F49204F6ACA00949F30 /* AppDelegate.swift in Sources */,
 			);
@@ -311,7 +315,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6B5AP37L3T;
+				DEVELOPMENT_TEAM = 896K5V9MMM;
 				INFOPLIST_FILE = "$(SRCROOT)/VisionFaceTrack/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -329,7 +333,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6B5AP37L3T;
+				DEVELOPMENT_TEAM = 896K5V9MMM;
 				INFOPLIST_FILE = "$(SRCROOT)/VisionFaceTrack/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
