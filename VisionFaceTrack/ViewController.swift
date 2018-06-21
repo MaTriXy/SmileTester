@@ -25,7 +25,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     var captureDevice: AVCaptureDevice?
     var captureDeviceResolution: CGSize = CGSize()
-    let model = SmileNet()
+    let modelCNN = SmileCNN()
+    let modelNet = SmileNet()
+    var captureDevicePosition = AVCaptureDevice.Position.front
     
     // Layer UI for drawing Vision results
     var rootLayer: CALayer?
@@ -53,6 +55,16 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         self.session?.startRunning()
     }
     
+    @IBAction func changeCameraView(_ sender: UISwitch) {
+        captureDevicePosition = sender.isOn ? .front : .back
+        
+        self.infoLabel.text = "Find Faces"
+        self.session?.stopRunning()
+        
+        self.session = self.setupAVCaptureSession()
+        self.prepareVisionRequest()
+        self.session?.startRunning()
+    }
     // Ensure that the interface stays locked in Portrait.
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
@@ -111,7 +123,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     }
     
     fileprivate func configureFrontCamera(for captureSession: AVCaptureSession) throws -> (device: AVCaptureDevice, resolution: CGSize) {
-        let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .front)
+        let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: captureDevicePosition)
         
         if let device = deviceDiscoverySession.devices.first {
             if let deviceInput = try? AVCaptureDeviceInput(device: device) {
@@ -209,17 +221,16 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     }
     
     func exifOrientationForDeviceOrientation(_ deviceOrientation: UIDeviceOrientation) -> CGImagePropertyOrientation {
-        
         switch deviceOrientation {
         case .portraitUpsideDown:
             return .rightMirrored
-            
+
         case .landscapeLeft:
             return .downMirrored
-            
+
         case .landscapeRight:
             return .upMirrored
-            
+
         default:
             return .leftMirrored
         }
@@ -343,28 +354,55 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         var scaleY: CGFloat
         
         // Rotate the layer into screen orientation.
-        switch UIDevice.current.orientation {
-        case .portraitUpsideDown:
-            rotation = 180
-            scaleX = videoPreviewRect.width / captureDeviceResolution.width
-            scaleY = videoPreviewRect.height / captureDeviceResolution.height
-            
-        case .landscapeLeft:
-            rotation = 90
-            scaleX = videoPreviewRect.height / captureDeviceResolution.width
-            scaleY = scaleX
-            
-        case .landscapeRight:
-            rotation = -90
-            scaleX = videoPreviewRect.height / captureDeviceResolution.width
-            scaleY = scaleX
-            
+        switch captureDevicePosition {
+        case .front:
+            switch UIDevice.current.orientation {
+            case .portraitUpsideDown:
+                rotation = 180
+                scaleX = videoPreviewRect.width / captureDeviceResolution.width
+                scaleY = videoPreviewRect.height / captureDeviceResolution.height
+                
+            case .landscapeLeft:
+                rotation = 90
+                scaleX = videoPreviewRect.height / captureDeviceResolution.width
+                scaleY = scaleX
+                
+            case .landscapeRight:
+                rotation = -90
+                scaleX = videoPreviewRect.height / captureDeviceResolution.width
+                scaleY = scaleX
+                
+            default:
+                rotation = 0
+                scaleX = videoPreviewRect.width / captureDeviceResolution.width
+                scaleY = videoPreviewRect.height / captureDeviceResolution.height
+            }
+        case .back:
+            switch UIDevice.current.orientation {
+            case .portraitUpsideDown:
+                rotation = 180
+                scaleX = videoPreviewRect.width / captureDeviceResolution.width
+                scaleY = videoPreviewRect.height / captureDeviceResolution.height
+                
+            case .landscapeLeft:
+                rotation = 90
+                scaleX = videoPreviewRect.height / captureDeviceResolution.width
+                scaleY = scaleX
+                
+            case .landscapeRight:
+                rotation = -90
+                scaleX = videoPreviewRect.height / captureDeviceResolution.width
+                scaleY = scaleX
+                
+            default:
+                rotation = 0
+                scaleX = videoPreviewRect.width / captureDeviceResolution.width
+                scaleY = videoPreviewRect.height / captureDeviceResolution.height
+            }
         default:
-            rotation = 0
-            scaleX = videoPreviewRect.width / captureDeviceResolution.width
-            scaleY = videoPreviewRect.height / captureDeviceResolution.height
+            return
         }
-        
+
         // Scale and mirror the image to ensure upright presentation.
         let affineTransform = CGAffineTransform(rotationAngle: radiansForDegrees(rotation))
             .scaledBy(x: scaleX, y: -scaleY)
@@ -483,6 +521,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                     return
             }
             
+            var cnnSmiles = 0
+            var netSmiles = 0
+            
             for result in results {
                 if let landmarks = result.landmarks, let points = landmarks.allPoints {
                     let p = points
@@ -491,29 +532,58 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                         continue
                     }
                     
-                    let input = SmileNetInput(_1: p.normalizedPoints[0].x.d, _2: p.normalizedPoints[0].y.d, _3: p.normalizedPoints[1].x.d, _4: p.normalizedPoints[1].y.d, _5: p.normalizedPoints[2].x.d, _6: p.normalizedPoints[2].y.d, _7: p.normalizedPoints[3].x.d, _8: p.normalizedPoints[3].y.d, _9: p.normalizedPoints[4].x.d, _10: p.normalizedPoints[4].y.d, _11: p.normalizedPoints[5].x.d, _12: p.normalizedPoints[5].y.d, _13: p.normalizedPoints[6].x.d, _14: p.normalizedPoints[6].y.d, _15: p.normalizedPoints[7].x.d, _16: p.normalizedPoints[7].y.d, _17: p.normalizedPoints[8].x.d, _18: p.normalizedPoints[8].y.d, _19: p.normalizedPoints[9].x.d, _20: p.normalizedPoints[9].y.d, _21: p.normalizedPoints[10].x.d, _22: p.normalizedPoints[10].y.d, _23: p.normalizedPoints[11].x.d, _24: p.normalizedPoints[11].y.d, _25: p.normalizedPoints[12].x.d, _26: p.normalizedPoints[12].y.d, _27: p.normalizedPoints[13].x.d, _28: p.normalizedPoints[13].y.d, _29: p.normalizedPoints[14].x.d, _30: p.normalizedPoints[14].y.d, _31: p.normalizedPoints[15].x.d, _32: p.normalizedPoints[15].y.d, _33: p.normalizedPoints[16].x.d, _34: p.normalizedPoints[16].y.d, _35: p.normalizedPoints[17].x.d, _36: p.normalizedPoints[17].y.d, _37: p.normalizedPoints[18].x.d, _38: p.normalizedPoints[18].y.d, _39: p.normalizedPoints[19].x.d, _40: p.normalizedPoints[19].y.d, _41: p.normalizedPoints[20].x.d, _42: p.normalizedPoints[20].y.d, _43: p.normalizedPoints[21].x.d, _44: p.normalizedPoints[21].y.d, _45: p.normalizedPoints[22].x.d, _46: p.normalizedPoints[22].y.d, _47: p.normalizedPoints[23].x.d, _48: p.normalizedPoints[23].y.d, _49: p.normalizedPoints[24].x.d, _50: p.normalizedPoints[24].y.d, _51: p.normalizedPoints[25].x.d, _52: p.normalizedPoints[25].y.d, _53: p.normalizedPoints[26].x.d, _54: p.normalizedPoints[26].y.d, _55: p.normalizedPoints[27].x.d, _56: p.normalizedPoints[27].y.d, _57: p.normalizedPoints[28].x.d, _58: p.normalizedPoints[28].y.d, _59: p.normalizedPoints[29].x.d, _60: p.normalizedPoints[29].y.d, _61: p.normalizedPoints[30].x.d, _62: p.normalizedPoints[30].y.d, _63: p.normalizedPoints[31].x.d, _64: p.normalizedPoints[31].y.d, _65: p.normalizedPoints[32].x.d, _66: p.normalizedPoints[32].y.d, _67: p.normalizedPoints[33].x.d, _68: p.normalizedPoints[33].y.d, _69: p.normalizedPoints[34].x.d, _70: p.normalizedPoints[34].y.d, _71: p.normalizedPoints[35].x.d, _72: p.normalizedPoints[35].y.d, _73: p.normalizedPoints[36].x.d, _74: p.normalizedPoints[36].y.d, _75: p.normalizedPoints[37].x.d, _76: p.normalizedPoints[37].y.d, _77: p.normalizedPoints[38].x.d, _78: p.normalizedPoints[38].y.d, _79: p.normalizedPoints[39].x.d, _80: p.normalizedPoints[39].y.d, _81: p.normalizedPoints[40].x.d, _82: p.normalizedPoints[40].y.d, _83: p.normalizedPoints[41].x.d, _84: p.normalizedPoints[41].y.d, _85: p.normalizedPoints[42].x.d, _86: p.normalizedPoints[42].y.d, _87: p.normalizedPoints[43].x.d, _88: p.normalizedPoints[43].y.d, _89: p.normalizedPoints[44].x.d, _90: p.normalizedPoints[44].y.d, _91: p.normalizedPoints[45].x.d, _92: p.normalizedPoints[45].y.d, _93: p.normalizedPoints[46].x.d, _94: p.normalizedPoints[46].y.d, _95: p.normalizedPoints[47].x.d, _96: p.normalizedPoints[47].y.d, _97: p.normalizedPoints[48].x.d, _98: p.normalizedPoints[48].y.d, _99: p.normalizedPoints[49].x.d, _100: p.normalizedPoints[49].y.d, _101: p.normalizedPoints[50].x.d, _102: p.normalizedPoints[50].y.d, _103: p.normalizedPoints[51].x.d, _104: p.normalizedPoints[51].y.d, _105: p.normalizedPoints[52].x.d, _106: p.normalizedPoints[52].y.d, _107: p.normalizedPoints[53].x.d, _108: p.normalizedPoints[53].y.d, _109: p.normalizedPoints[54].x.d, _110: p.normalizedPoints[54].y.d, _111: p.normalizedPoints[55].x.d, _112: p.normalizedPoints[55].y.d, _113: p.normalizedPoints[56].x.d, _114: p.normalizedPoints[56].y.d, _115: p.normalizedPoints[57].x.d, _116: p.normalizedPoints[57].y.d, _117: p.normalizedPoints[58].x.d, _118: p.normalizedPoints[58].y.d, _119: p.normalizedPoints[59].x.d, _120: p.normalizedPoints[59].y.d, _121: p.normalizedPoints[60].x.d, _122: p.normalizedPoints[60].y.d, _123: p.normalizedPoints[61].x.d, _124: p.normalizedPoints[61].y.d, _125: p.normalizedPoints[62].x.d, _126: p.normalizedPoints[62].y.d, _127: p.normalizedPoints[63].x.d, _128: p.normalizedPoints[63].y.d, _129: p.normalizedPoints[64].x.d, _130: p.normalizedPoints[64].y.d)
+                    var normalizedArray = [Double]()
+                    for i in 0...p.normalizedPoints.count-1{
+                        normalizedArray.append(Double(p.normalizedPoints[i].x))
+                        normalizedArray.append(Double(p.normalizedPoints[i].y))
+                    }
                     
-                    guard let smileOutput = try? self.model.prediction(input: input) else {
+                    guard let mlMultiArray = try? MLMultiArray(shape:[130], dataType:MLMultiArrayDataType.double) else {
+                        fatalError("Unexpected runtime error. MLMultiArray")
+                    }
+                    
+                    for i in 0...normalizedArray.count-1{
+                        mlMultiArray[i] = NSNumber(value: normalizedArray[i])
+                    }
+                    
+                    let smileNetInput = SmileNetInput(_1: p.normalizedPoints[0].x.d, _2: p.normalizedPoints[0].y.d, _3: p.normalizedPoints[1].x.d, _4: p.normalizedPoints[1].y.d, _5: p.normalizedPoints[2].x.d, _6: p.normalizedPoints[2].y.d, _7: p.normalizedPoints[3].x.d, _8: p.normalizedPoints[3].y.d, _9: p.normalizedPoints[4].x.d, _10: p.normalizedPoints[4].y.d, _11: p.normalizedPoints[5].x.d, _12: p.normalizedPoints[5].y.d, _13: p.normalizedPoints[6].x.d, _14: p.normalizedPoints[6].y.d, _15: p.normalizedPoints[7].x.d, _16: p.normalizedPoints[7].y.d, _17: p.normalizedPoints[8].x.d, _18: p.normalizedPoints[8].y.d, _19: p.normalizedPoints[9].x.d, _20: p.normalizedPoints[9].y.d, _21: p.normalizedPoints[10].x.d, _22: p.normalizedPoints[10].y.d, _23: p.normalizedPoints[11].x.d, _24: p.normalizedPoints[11].y.d, _25: p.normalizedPoints[12].x.d, _26: p.normalizedPoints[12].y.d, _27: p.normalizedPoints[13].x.d, _28: p.normalizedPoints[13].y.d, _29: p.normalizedPoints[14].x.d, _30: p.normalizedPoints[14].y.d, _31: p.normalizedPoints[15].x.d, _32: p.normalizedPoints[15].y.d, _33: p.normalizedPoints[16].x.d, _34: p.normalizedPoints[16].y.d, _35: p.normalizedPoints[17].x.d, _36: p.normalizedPoints[17].y.d, _37: p.normalizedPoints[18].x.d, _38: p.normalizedPoints[18].y.d, _39: p.normalizedPoints[19].x.d, _40: p.normalizedPoints[19].y.d, _41: p.normalizedPoints[20].x.d, _42: p.normalizedPoints[20].y.d, _43: p.normalizedPoints[21].x.d, _44: p.normalizedPoints[21].y.d, _45: p.normalizedPoints[22].x.d, _46: p.normalizedPoints[22].y.d, _47: p.normalizedPoints[23].x.d, _48: p.normalizedPoints[23].y.d, _49: p.normalizedPoints[24].x.d, _50: p.normalizedPoints[24].y.d, _51: p.normalizedPoints[25].x.d, _52: p.normalizedPoints[25].y.d, _53: p.normalizedPoints[26].x.d, _54: p.normalizedPoints[26].y.d, _55: p.normalizedPoints[27].x.d, _56: p.normalizedPoints[27].y.d, _57: p.normalizedPoints[28].x.d, _58: p.normalizedPoints[28].y.d, _59: p.normalizedPoints[29].x.d, _60: p.normalizedPoints[29].y.d, _61: p.normalizedPoints[30].x.d, _62: p.normalizedPoints[30].y.d, _63: p.normalizedPoints[31].x.d, _64: p.normalizedPoints[31].y.d, _65: p.normalizedPoints[32].x.d, _66: p.normalizedPoints[32].y.d, _67: p.normalizedPoints[33].x.d, _68: p.normalizedPoints[33].y.d, _69: p.normalizedPoints[34].x.d, _70: p.normalizedPoints[34].y.d, _71: p.normalizedPoints[35].x.d, _72: p.normalizedPoints[35].y.d, _73: p.normalizedPoints[36].x.d, _74: p.normalizedPoints[36].y.d, _75: p.normalizedPoints[37].x.d, _76: p.normalizedPoints[37].y.d, _77: p.normalizedPoints[38].x.d, _78: p.normalizedPoints[38].y.d, _79: p.normalizedPoints[39].x.d, _80: p.normalizedPoints[39].y.d, _81: p.normalizedPoints[40].x.d, _82: p.normalizedPoints[40].y.d, _83: p.normalizedPoints[41].x.d, _84: p.normalizedPoints[41].y.d, _85: p.normalizedPoints[42].x.d, _86: p.normalizedPoints[42].y.d, _87: p.normalizedPoints[43].x.d, _88: p.normalizedPoints[43].y.d, _89: p.normalizedPoints[44].x.d, _90: p.normalizedPoints[44].y.d, _91: p.normalizedPoints[45].x.d, _92: p.normalizedPoints[45].y.d, _93: p.normalizedPoints[46].x.d, _94: p.normalizedPoints[46].y.d, _95: p.normalizedPoints[47].x.d, _96: p.normalizedPoints[47].y.d, _97: p.normalizedPoints[48].x.d, _98: p.normalizedPoints[48].y.d, _99: p.normalizedPoints[49].x.d, _100: p.normalizedPoints[49].y.d, _101: p.normalizedPoints[50].x.d, _102: p.normalizedPoints[50].y.d, _103: p.normalizedPoints[51].x.d, _104: p.normalizedPoints[51].y.d, _105: p.normalizedPoints[52].x.d, _106: p.normalizedPoints[52].y.d, _107: p.normalizedPoints[53].x.d, _108: p.normalizedPoints[53].y.d, _109: p.normalizedPoints[54].x.d, _110: p.normalizedPoints[54].y.d, _111: p.normalizedPoints[55].x.d, _112: p.normalizedPoints[55].y.d, _113: p.normalizedPoints[56].x.d, _114: p.normalizedPoints[56].y.d, _115: p.normalizedPoints[57].x.d, _116: p.normalizedPoints[57].y.d, _117: p.normalizedPoints[58].x.d, _118: p.normalizedPoints[58].y.d, _119: p.normalizedPoints[59].x.d, _120: p.normalizedPoints[59].y.d, _121: p.normalizedPoints[60].x.d, _122: p.normalizedPoints[60].y.d, _123: p.normalizedPoints[61].x.d, _124: p.normalizedPoints[61].y.d, _125: p.normalizedPoints[62].x.d, _126: p.normalizedPoints[62].y.d, _127: p.normalizedPoints[63].x.d, _128: p.normalizedPoints[63].y.d, _129: p.normalizedPoints[64].x.d, _130: p.normalizedPoints[64].y.d)
+                    
+                    let input = SmileCNNInput(input1: mlMultiArray)
+                    
+                    guard let smileOutputCNN = try? self.modelCNN.prediction(input: input) else {
+                        fatalError("Unexpected runtime error.")
+                    }
+                    guard let smileOutputNet = try? self.modelNet.prediction(input: smileNetInput) else {
                         fatalError("Unexpected runtime error.")
                     }
                     
-                    DispatchQueue.main.async {
-                        let formatter = NumberFormatter()
-                        formatter.maximumFractionDigits = 2
-                        formatter.minimumFractionDigits = 2
-                        let value = formatter.string(from: NSNumber(value: (smileOutput.yProbability[smileOutput.y] ?? 0) * 100))
-                        let percent = "(\(value ?? "0")%)"
-                        
-                        let isSmiling = smileOutput.y == 1
-                        if isSmiling {
-                            self.infoLabel.text = "Smiling 😃 \(percent)"
-                        } else {
-                            self.infoLabel.text = "Not Smiling 😐 \(percent)"
-                        }
+                    let value = smileOutputCNN.output1[0].doubleValue
+
+                    if value > 0.5 {
+                        cnnSmiles += 1
                     }
+                    if smileOutputNet.y == 1 {
+                        netSmiles += 1
+                    }
+                    
+                    DispatchQueue.main.async {
+                        //let formatter = NumberFormatter()
+                        //formatter.maximumFractionDigits = 2
+                        //formatter.minimumFractionDigits = 2
+                        //let value = formatter.string(from: NSNumber(value: (smileOutput.yProbability[smileOutput.y] ?? 0) * 100))
+                        // let percent = "(\(value ?? "0")%)"
+                        
+                        self.infoLabel.text = "CNN: \(cnnSmiles) 😃 \(results.count - netSmiles) 😐                                     NET:\(netSmiles) 😃 \(results.count - netSmiles) 😐"
+                    }
+                    
                 }
             }
             
+//            if results.count == smiles {
+//                DispatchQueue.main.async {
+//                    self.infoLabel.text = "📸 \(smiles) 😃 \(results.count - smiles) 😐"
+//                }
+//            }
             
             // Perform all UI updates (drawing) on the main queue, not the background queue on which this handler is being called.
             DispatchQueue.main.async {
