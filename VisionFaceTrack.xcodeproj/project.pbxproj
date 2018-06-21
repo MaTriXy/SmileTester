@@ -13,7 +13,7 @@
 		28C69F4E204F6ACA00949F30 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 28C69F4C204F6ACA00949F30 /* Main.storyboard */; };
 		28C69F50204F6ACA00949F30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 28C69F4F204F6ACA00949F30 /* Assets.xcassets */; };
 		28C69F53204F6ACA00949F30 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 28C69F51204F6ACA00949F30 /* LaunchScreen.storyboard */; };
-		4366DFAA20D9E96D0000414D /* SmileNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 4366DFA920D9E96D0000414D /* SmileNet.mlmodel */; };
+		43A2766A20DB442D00738E2B /* SmileNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 43A2766920DB442D00738E2B /* SmileNet.mlmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,7 +25,7 @@
 		28C69F4F204F6ACA00949F30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		28C69F52204F6ACA00949F30 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		28C69F54204F6ACA00949F30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4366DFA920D9E96D0000414D /* SmileNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SmileNet.mlmodel; sourceTree = "<group>"; };
+		43A2766920DB442D00738E2B /* SmileNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SmileNet.mlmodel; sourceTree = "<group>"; };
 		B69628C0B695E23000000001 /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
 		B6A8EF10B6A8F08000000001 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -64,10 +64,10 @@
 			isa = PBXGroup;
 			children = (
 				28C69F48204F6ACA00949F30 /* AppDelegate.swift */,
-				4366DFA920D9E96D0000414D /* SmileNet.mlmodel */,
 				28C69F4A204F6ACA00949F30 /* ViewController.swift */,
 				28C69F4C204F6ACA00949F30 /* Main.storyboard */,
 				28C69F4F204F6ACA00949F30 /* Assets.xcassets */,
+				43A2766920DB442D00738E2B /* SmileNet.mlmodel */,
 				28C69F51204F6ACA00949F30 /* LaunchScreen.storyboard */,
 				28C69F54204F6ACA00949F30 /* Info.plist */,
 			);
@@ -164,7 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4366DFAA20D9E96D0000414D /* SmileNet.mlmodel in Sources */,
+				43A2766A20DB442D00738E2B /* SmileNet.mlmodel in Sources */,
 				28C69F4B204F6ACA00949F30 /* ViewController.swift in Sources */,
 				28C69F49204F6ACA00949F30 /* AppDelegate.swift in Sources */,
 			);
