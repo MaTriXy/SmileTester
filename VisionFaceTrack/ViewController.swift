@@ -41,6 +41,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     lazy var sequenceRequestHandler = VNSequenceRequestHandler()
     
+    var backcam = false
+    
     // MARK: UIViewController overrides
     
     override func viewDidLoad() {
@@ -57,7 +59,11 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     @IBAction func changeCameraView(_ sender: UISwitch) {
         captureDevicePosition = sender.isOn ? .front : .back
-        
+        if (captureDevicePosition == .back){
+            backcam = true
+        }else{
+            backcam = false
+        }
         self.infoLabel.text = "Find Faces"
         self.session?.stopRunning()
         
@@ -337,6 +343,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         self.updateLayerGeometry()
     }
     
+    
     fileprivate func updateLayerGeometry() {
         guard let overlayLayer = self.detectionOverlayLayer,
             let rootLayer = self.rootLayer,
@@ -404,9 +411,16 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
 
         // Scale and mirror the image to ensure upright presentation.
-        let affineTransform = CGAffineTransform(rotationAngle: radiansForDegrees(rotation))
-            .scaledBy(x: scaleX, y: -scaleY)
-        overlayLayer.setAffineTransform(affineTransform)
+        if backcam{
+            let affineTransform = CGAffineTransform(rotationAngle: radiansForDegrees(rotation))
+                .scaledBy(x: -scaleX, y: -scaleY)
+            overlayLayer.setAffineTransform(affineTransform)
+        }else{
+            let affineTransform = CGAffineTransform(rotationAngle: radiansForDegrees(rotation))
+                .scaledBy(x: scaleX, y: -scaleY)
+            overlayLayer.setAffineTransform(affineTransform)
+        }
+        
         
         // Cover entire screen UI.
         let rootLayerBounds = rootLayer.bounds
